@@ -7,10 +7,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 export default function History() {
   return (
-    <div>
+    <div className="flex flex-col h-[84dvh]">
       <h1 className="font-bold text-lg">Expenses History</h1>
       <div className="flex justify-between my-3">
         <div className="flex items-center gap-2">
@@ -40,8 +41,8 @@ export default function History() {
           </Select>
         </div>
       </div>
-      <div className="w-full h-[75dvh] bg-gray-100 rounded-lg border border-gray-100 shadow-inner shadow-gray-400/20 overflow-auto p-3">
-        <div className="w-full h-[auto] bg-white rounded-lg shadow-sm p-3 text-sm mb-3">
+      <ScrollArea className="flex-1 overflow-auto bg-gray-100 rounded-lg border border-gray-100 shadow-inner shadow-gray-400/20 p-3">
+        <div className="bg-white rounded-lg shadow-sm p-3 text-sm mb-3">
           <div className="flex justify-between font-bold">
             <h2>Sept. 14</h2>  <h2>Total: ₱510</h2>
           </div>
@@ -66,7 +67,7 @@ export default function History() {
           <div className="w-full h-[0.5px] bg-gray-200 my-3"></div>
           <h2 className="text-sm font-bold">Subtotal:  ₱260 (Food) |  ₱150 (Transportation) | ₱100 (Others)</h2>
         </div>
-        <div className="w-full h-[auto] bg-white rounded-lg shadow-sm p-3 text-sm mb-3">
+        <div className="bg-white rounded-lg shadow-sm p-3 text-sm mb-3">
           <div className="flex justify-between font-bold">
             <h2>Sept. 13</h2>  <h2>Total: ₱510</h2>
           </div>
@@ -91,7 +92,7 @@ export default function History() {
           <div className="w-full h-[0.5px] bg-gray-200 my-3"></div>
           <h2 className="text-sm font-bold">Subtotal:  ₱260 (Food) |  ₱150 (Transportation) | ₱100 (Others)</h2>
         </div>
-      </div>
+      </ScrollArea>
       <div className="p-3 pb-0">
         <h2 className="text-sm">Subtotal:  ₱520 (Food) |  ₱300 (Transpo) | ₱200 (Others)</h2>
       <h2 className="font-bold">Total: ₱1,020</h2>
