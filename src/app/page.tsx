@@ -2,19 +2,20 @@ import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Expenses from "../pages/Expenses";
 import { LayoutDashboard, Wallet, History } from "lucide-react";
+import HistoryTab from "../pages/History";
 
 export default function Home() {
   return (
     <div className="w-full h-auto">
       <Tabs defaultValue="dashboard" className="w-full flex flex-col">
-        <div className="w-full p-3">
+        <div className="w-full p-3 mb-13">
           <TabsContent value="dashboard">DasHboard</TabsContent>
           <TabsContent value="expenses">
             <Expenses />
           </TabsContent>
-          <TabsContent value="history">History</TabsContent>
+          <TabsContent value="history"><HistoryTab/></TabsContent>
         </div>
-        <div className="flex justify-center">
+        <div className="w-full h-auto bg-black flex justify-center">
           <TabsList className="w-[95%] h-13 gap-2 p-2 fixed bottom-2">
             <TabsTrigger value="dashboard" className="cursor-pointer">
               <LayoutDashboard />
