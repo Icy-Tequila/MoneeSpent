@@ -4,11 +4,11 @@ import Food from "./Food";
 
 export default function Expenses() {
   return (
-    <div>
+    <div className="w-full">
       <h1 className="font-bold text-lg">Daily Expenses</h1>
       <div>
-        <Tabs defaultValue="food" className="w-[400px] mt-3">
-          <TabsList className="h-12 p-2">
+        <Tabs defaultValue="food" className="mt-3">
+          <TabsList className="flex gap-2 h-12 p-2">
             <TabsTrigger value="food" className="px-3">
               Food
             </TabsTrigger>
