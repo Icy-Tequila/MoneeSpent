@@ -52,9 +52,9 @@ export default function Food() {
   );
 
   return (
-    <div>
+    <div className="flex-1 overflow-auto bg-gray-100 rounded-lg border border-gray-100 shadow-inner shadow-gray-400/20 p-3">
       {/* INPUT BOX */}
-      <div className="border border-gray-200 rounded-lg shadow-xs p-3 mt-1">
+      <div className="bg-white border border-gray-200 rounded-lg shadow-xs p-3 mt-1">
         <div className="flex items-center justify-end gap-2">
           Date
           <DatePicker />
@@ -100,9 +100,8 @@ export default function Food() {
       </div>
 
       {/* EXPENSE LIST */}
-      <div className="border border-gray-200 rounded-lg shadow-xs p-3 mt-3">
+      <div className="bg-white border border-gray-200 rounded-lg shadow-xs p-3 mt-3">
         <h2>Food expenses on {new Date(selectedDate).toDateString()}</h2>
-        <div className="w-full h-[0.5px] bg-gray-200 my-3"></div>
 
         <ul className="list-disc ml-5 my-3 flex flex-col gap-2">
           {expensesForDate.map((exp, i) => (
