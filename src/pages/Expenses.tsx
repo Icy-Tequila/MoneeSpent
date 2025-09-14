@@ -1,5 +1,6 @@
 import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import Food from "./Food";
 
 export default function Expenses() {
   return (
@@ -18,7 +19,9 @@ export default function Expenses() {
               Other
             </TabsTrigger>
           </TabsList>
-          <TabsContent value="food">Food Expenses</TabsContent>
+          <TabsContent value="food">
+            <Food />
+          </TabsContent>
           <TabsContent value="transportation">
             Transportation Expenses
           </TabsContent>
