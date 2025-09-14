@@ -1,13 +1,14 @@
 import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import Expenses from "../pages/Expenses";
 
 export default function Home() {
   return (
-    <div className="w-full h-[100dvh]">
+    <div className="w-full h-auto">
       <Tabs defaultValue="dashboard" className="w-full flex flex-col">
-        <div className="w-full m-3">
-          <TabsContent value="dashboard">Dasboard</TabsContent>
-          <TabsContent value="expenses">Expenses</TabsContent>
+        <div className="w-full p-3">
+          <TabsContent value="dashboard">DasHboard</TabsContent>
+          <TabsContent value="expenses"><Expenses/></TabsContent>
           <TabsContent value="history">History</TabsContent>
         </div>
         <div className="flex justify-center">
