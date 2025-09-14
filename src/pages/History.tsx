@@ -13,16 +13,16 @@ export default function History() {
   return (
     <div className="flex flex-col h-[84dvh]">
       <h1 className="font-bold text-lg">Expenses History</h1>
-      <div className="flex justify-between my-3">
-        <div className="flex items-center gap-2">
+      <div className="flex justify-between my-3 text-sm gap-1">
+        <div className="flex items-center gap-1">
           Date
           <DatePicker />
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           Filter
           <Select>
             <SelectTrigger className="w-auto max-w-[150px] cursor-pointer">
-              <SelectValue placeholder="Select category" />
+              <SelectValue placeholder="Category" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="food" className="cursor-pointer">
