@@ -1,10 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
-import { DatePicker } from "../components/ui/date-picker";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "../components/ui/calendar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { EllipsisVertical } from "lucide-react";
+import { EllipsisVertical, CalendarFold } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,33 +24,31 @@ type Expense = {
 };
 
 export default function Food() {
-  // --- STATE ---
+  // control selected date (Date object)
+  const [date, setDate] = useState<Date | undefined>(new Date());
+  // control popover visibility
+  const [open, setOpen] = useState(false);
+
   const [amount, setAmount] = useState<string>("");
   const [note, setNote] = useState<string>("");
-  const [selectedDate, setSelectedDate] = useState<string>(
-    new Date().toISOString().split("T")[0]
-  );
   const [expenses, setExpenses] = useState<Expense[]>([]);
 
-  // --- ADD EXPENSE FUNCTION ---
+  // derived YYYY-MM-DD string for expense records
+  const selectedDate = date ? date.toISOString().split("T")[0] : "";
+
+  // add expense
   const addExpense = () => {
-    if (!amount || isNaN(Number(amount))) return;
+    if (!amount || isNaN(Number(amount)) || !selectedDate) return;
 
     setExpenses([
       ...expenses,
       { amount: Number(amount), note: note || "No note", date: selectedDate },
     ]);
-
     setAmount("");
     setNote("");
   };
 
-  // --- FILTER EXPENSES FOR SELECTED DATE ---
-  const expensesForDate = expenses.filter(
-    (exp) => exp.date === selectedDate
-  );
-
-  // --- TOTAL CALCULATION ---
+  const expensesForDate = expenses.filter((exp) => exp.date === selectedDate);
   const totalForDate = expensesForDate.reduce(
     (sum, exp) => sum + exp.amount,
     0
@@ -53,18 +56,30 @@ export default function Food() {
 
   return (
     <div className="flex-1 overflow-auto bg-gray-100 rounded-lg border border-gray-100 shadow-inner shadow-gray-400/20 p-3">
-      {/* INPUT BOX */}
       <div className="bg-white border border-gray-200 rounded-lg shadow-xs p-3 mt-1">
         <div className="flex items-center justify-end gap-2">
           Date
-          <DatePicker />
-          {/* hidden input for controlling the date logic */}
-          <input
-            type="date"
-            value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
-            className="hidden"
-          />
+          <Popover open={open} onOpenChange={setOpen}>
+            {/* use asChild so we can apply custom classes */}
+            <PopoverTrigger asChild>
+              <button className="w-35 flex justify-between items-center py-1 px-5 border border-gray-200 rounded-lg text-gray-500 text-sm">
+                {date ? date.toLocaleDateString() : "Pick a date"}
+                <CalendarFold width={15} />
+              </button>
+            </PopoverTrigger>
+
+            <PopoverContent className="mr-5">
+              {/* wrap onSelect so we can setDate AND close popover */}
+              <Calendar
+                mode="single"
+                selected={date}
+                onSelect={(d) => {
+                  setDate(d);
+                  setOpen(false); // <-- auto-close here
+                }}
+              />
+            </PopoverContent>
+          </Popover>
         </div>
 
         <div className="flex flex-col gap-1">
@@ -73,36 +88,34 @@ export default function Food() {
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
               ₱
             </span>
-            {/* CONNECTED INPUT */}
             <Input
               placeholder="0.00"
               className="pl-7 placeholder-gray-400!"
-              value={amount || ""} 
+              value={amount}
               onChange={(e) => setAmount(e.target.value)}
             />
           </div>
 
           <label htmlFor="note">Note</label>
-          {/* CONNECTED INPUT */}
           <Input
             className="focus:ring-2! text-sm"
-            value={note || ""}  
+            value={note}
             onChange={(e) => setNote(e.target.value)}
           />
         </div>
 
         <div className="flex justify-end mt-3">
-          {/* CONNECTED BUTTON */}
           <Button className="font-normal cursor-pointer" onClick={addExpense}>
             + Add Expense
           </Button>
         </div>
       </div>
 
-      {/* EXPENSE LIST */}
       <div className="bg-white border border-gray-200 rounded-lg shadow-xs p-3 mt-3">
-        <h2>Food expenses on {new Date(selectedDate).toDateString()}</h2>
-
+        <div className="flex gap-1">
+          <h2>Food expenses on </h2>{" "}
+          <div className="font-bold">{date?.toDateString()}</div>
+        </div>
         <ul className="list-disc ml-5 my-3 flex flex-col gap-2">
           {expensesForDate.map((exp, i) => (
             <div key={i} className="flex justify-between">
@@ -114,7 +127,9 @@ export default function Food() {
                   <EllipsisVertical />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="mr-10">
-                  <DropdownMenuItem className="cursor-pointer">Edit</DropdownMenuItem>
+                  <DropdownMenuItem className="cursor-pointer">
+                    Edit
+                  </DropdownMenuItem>
                   <DropdownMenuItem className="cursor-pointer text-red-700 hover:text-red-700!">
                     Delete
                   </DropdownMenuItem>
@@ -123,8 +138,7 @@ export default function Food() {
             </div>
           ))}
         </ul>
-
-        <div className="w-full h-[0.5px] bg-gray-200 my-3"></div>
+        <div className="w-full h-[0.5px] bg-gray-200 my-3" />
         <h3 className="font-bold flex justify-end">Total: ₱{totalForDate}</h3>
       </div>
     </div>
