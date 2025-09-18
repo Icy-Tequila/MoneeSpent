@@ -16,6 +16,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { toast } from "sonner"
 
 type Expense = {
   amount: number;
@@ -37,16 +38,27 @@ export default function Food() {
   const selectedDate = date ? date.toISOString().split("T")[0] : "";
 
   // add expense
-  const addExpense = () => {
-    if (!amount || isNaN(Number(amount)) || !selectedDate) return;
+const addExpense = () => {
+  if (!amount || isNaN(Number(amount))) {
+    toast.error("Please fill in a valid amount.")
+    return
+  }
 
-    setExpenses([
-      ...expenses,
-      { amount: Number(amount), note: note || "No note", date: selectedDate },
-    ]);
-    setAmount("");
-    setNote("");
-  };
+  if (!note.trim()) {
+    toast.error("A note is required for each expense.")
+    return
+  }
+
+  setExpenses([
+    ...expenses,
+    { amount: Number(amount), note: note.trim(), date: selectedDate },
+  ])
+
+  toast.success("Expense added successfully!")
+
+  setAmount("")
+  setNote("")
+}
 
   const expensesForDate = expenses.filter((exp) => exp.date === selectedDate);
   const totalForDate = expensesForDate.reduce(
