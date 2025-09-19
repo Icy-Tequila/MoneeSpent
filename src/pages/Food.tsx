@@ -131,6 +131,20 @@ export default function Food() {
     }
   };
 
+  // NEW additions for dropdown + alert logic
+  const [dropdownOpen, setDropdownOpen] = useState<number | null | undefined>(
+    null
+  );
+  // tracks which expense's dropdown is open, null = none
+
+  const [alertOpen, setAlertOpen] = useState(false);
+  // tracks if the alert dialog is open
+
+  const [selectedExpenseId, setSelectedExpenseId] = useState<number | null>(
+    null
+  );
+  // stores which expense is selected for deletion
+
   const expensesForDate = expenses.filter((exp) => exp.date === selectedDate);
   const totalForDate = expensesForDate.reduce(
     (sum, exp) => sum + exp.amount,
@@ -209,20 +223,32 @@ export default function Food() {
               <li>
                 ₱{exp.amount} - {exp.note}
               </li>
-              <DropdownMenu>
-                <DropdownMenuTrigger className="cursor-pointer">
+              <DropdownMenu
+                open={dropdownOpen === exp.id}
+                onOpenChange={(open) => setDropdownOpen(open ? exp.id : null)}
+              >
+                <DropdownMenuTrigger
+                  className="cursor-pointer"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <EllipsisVertical />
                 </DropdownMenuTrigger>
 
-                <DropdownMenuContent className="mr-10">
+                <DropdownMenuContent
+                  className="mr-10"
+                  onClick={(e) => e.stopPropagation()} // stops clicks inside content from reaching outer components
+                >
                   <button className="w-full text-left text-sm px-2 py-[5px] cursor-pointer hover:bg-gray-100 rounded-sm">
                     Edit
                   </button>
 
                   {/* Delete with AlertDialog */}
-                  <AlertDialog open={open} onOpenChange={setOpen}>
+                  <AlertDialog open={alertOpen} onOpenChange={setAlertOpen}>
                     <AlertDialogTrigger asChild>
-                      <button className="w-full text-left text-red-700 hover:text-red-700! text-sm px-2 py-[5px] cursor-pointer hover:bg-gray-100 rounded-sm">
+                      <button
+                        className="w-full text-left text-red-700 hover:text-red-700! text-sm px-2 py-[5px] cursor-pointer hover:bg-gray-100 rounded-sm"
+                        onClick={() => setDropdownOpen(exp.id ?? null)}
+                      >
                         Delete
                       </button>
                     </AlertDialogTrigger>
@@ -239,7 +265,7 @@ export default function Food() {
                         <div className="flex gap-2">
                           <Button
                             variant="outline"
-                            onClick={() => setOpen(false)}
+                            onClick={() => setAlertOpen(false)}
                             className="w-1/2 cursor-pointer"
                           >
                             Cancel
@@ -247,8 +273,10 @@ export default function Food() {
                           <Button
                             className="w-1/2 bg-red-600 hover:bg-red-700 cursor-pointer"
                             onClick={async () => {
-                              await deleteExpense(exp.id); // your existing function
-                              setOpen(false); // <-- manually close dialog
+                              if (selectedExpenseId)
+                                await deleteExpense(selectedExpenseId); // ⬅️ NEW: delete selected expense
+                              setAlertOpen(false); // ⬅️ NEW: close alert dialog
+                              setDropdownOpen(null); // ⬅️ NEW: close dropdown menu
                             }}
                           >
                             Delete
