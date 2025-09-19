@@ -49,7 +49,9 @@ export default function Food() {
   // ⬅️ new state to track loading (disables button and shows loading message)
 
   // derived YYYY-MM-DD string for expense records
-  const selectedDate = date ? date.toISOString().split("T")[0] : "";
+  const selectedDate = date
+    ? date.toISOString().split("T")[0]
+    : new Date().toISOString().split("T")[0];
 
   // ⬅️ fetch expenses from Supabase for the selected date
   const fetchExpenses = useCallback(async () => {
