@@ -18,6 +18,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 type Expense = {
   id?: number;
@@ -114,12 +123,11 @@ export default function Food() {
   // ⬅️ delete an expense row in Supabase using its id
   const deleteExpense = async (id?: number) => {
     if (!id) return;
-    if (!confirm("Delete this expense?")) return;
     const { error } = await supabase.from("expenses").delete().eq("id", id);
     if (error) toast.error(error.message);
     else {
       toast.success("Deleted");
-      fetchExpenses(); // reload list so item disappears
+      fetchExpenses();
     }
   };
 
@@ -205,16 +213,47 @@ export default function Food() {
                 <DropdownMenuTrigger className="cursor-pointer">
                   <EllipsisVertical />
                 </DropdownMenuTrigger>
+
                 <DropdownMenuContent className="mr-10">
                   <DropdownMenuItem className="cursor-pointer">
                     Edit
                   </DropdownMenuItem>
-                  <DropdownMenuItem
-                    className="cursor-pointer text-red-700 hover:text-red-700!"
-                    onClick={() => deleteExpense(exp.id)} // ⬅️ call deleteExpense with the current expense id
-                  >
-                    Delete
-                  </DropdownMenuItem>
+
+                  {/* Delete with AlertDialog */}
+                  <AlertDialog open={open} onOpenChange={setOpen}>
+                    <AlertDialogTrigger asChild>
+                      <button className="w-full text-left text-red-700 hover:text-red-700! px-3 py-1">
+                        Delete
+                      </button>
+                    </AlertDialogTrigger>
+
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Confirm Deletion</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to delete this expense? This
+                          action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <Button
+                          variant="outline"
+                          onClick={() => setOpen(false)}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          className="bg-red-600 hover:bg-red-700"
+                          onClick={async () => {
+                            await deleteExpense(exp.id); // your existing function
+                            setOpen(false); // <-- manually close dialog
+                          }}
+                        >
+                          Delete
+                        </Button>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
