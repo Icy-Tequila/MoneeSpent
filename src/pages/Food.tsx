@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
+import { supabase } from "@/lib/supabaseClient";
 import {
   Popover,
   PopoverContent,
@@ -16,12 +17,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { toast } from "sonner"
+import { toast } from "sonner";
 
 type Expense = {
+  id?: number;
   amount: number;
   note: string;
   date: string; // YYYY-MM-DD
+  inserted_at?: string;
 };
 
 export default function Food() {
@@ -34,31 +37,110 @@ export default function Food() {
   const [note, setNote] = useState<string>("");
   const [expenses, setExpenses] = useState<Expense[]>([]);
 
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  // ⬅️ new state to track loading (disables button and shows loading message)
+
   // derived YYYY-MM-DD string for expense records
   const selectedDate = date ? date.toISOString().split("T")[0] : "";
 
+  // ⬅️ fetch expenses from Supabase for the selected date
+  const fetchExpenses = useCallback(async () => {
+    if (!selectedDate) return;
+    setIsLoading(true);
+
+    const { data, error } = await supabase
+      .from("expenses")
+      .select("*")
+      .eq("date", selectedDate)
+      .order("inserted_at", { ascending: false });
+
+    if (error) {
+      toast.error(error.message);
+    } else if (data) {
+      setExpenses(
+        (data as Expense[]).map((row) => ({
+          id: row.id,
+          amount: Number(row.amount),
+          note: row.note,
+          date: row.date.split("T")[0],
+          inserted_at: row.inserted_at,
+        }))
+      );
+    }
+    setIsLoading(false);
+  }, [selectedDate]); // ✅ now it's properly a dependency
+
+  useEffect(() => {
+    fetchExpenses();
+  }, [fetchExpenses]); // ✅ no warning anymore
+
   // add expense
-const addExpense = () => {
-  if (!amount || isNaN(Number(amount))) {
-    toast.error("Please fill in a valid amount.")
-    return
-  }
+  const addExpense = async () => {
+    if (!amount || isNaN(Number(amount))) {
+      toast.error("Please fill in a valid amount.");
+      return;
+    }
 
-  if (!note.trim()) {
-    toast.error("A note is required for each expense.")
-    return
-  }
+    if (!note.trim()) {
+      toast.error("A note is required for each expense.");
+      return;
+    }
 
-  setExpenses([
-    ...expenses,
-    { amount: Number(amount), note: note.trim(), date: selectedDate },
-  ])
+    setIsLoading(true);
+    const { data, error } = await supabase
+      .from("expenses")
+      .insert([
+        { amount: Number(amount), note: note.trim(), date: selectedDate },
+      ])
+      .select(); // ⬅️ return the inserted row;
 
-  toast.success("Expense added successfully!")
+    setIsLoading(false);
 
-  setAmount("")
-  setNote("")
-}
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+
+    if (data && data.length > 0) {
+      setExpenses((prev) => [data[0], ...prev]); // append new expense
+    }
+
+    toast.success("Expense added successfully!");
+
+    setAmount("");
+    setNote("");
+  };
+
+  // ⬅️ delete an expense row in Supabase using its id
+  const deleteExpense = async (id?: number) => {
+    if (!id) return;
+    if (!confirm("Delete this expense?")) return;
+    const { error } = await supabase.from("expenses").delete().eq("id", id);
+    if (error) toast.error(error.message);
+    else {
+      toast.success("Deleted");
+      fetchExpenses(); // reload list so item disappears
+    }
+  };
+
+  // ⬅️ edit expense: asks user with prompt(), updates the row in Supabase
+  const editExpense = async (exp: Expense) => {
+    const newNote = prompt("Edit note", exp.note);
+    if (newNote === null) return;
+    const newAmountStr = prompt("Edit amount", String(exp.amount));
+    if (newAmountStr === null) return;
+
+    const { error } = await supabase
+      .from("expenses")
+      .update({ note: newNote.trim(), amount: Number(newAmountStr) })
+      .eq("id", exp.id);
+
+    if (error) toast.error(error.message);
+    else {
+      toast.success("Updated");
+      fetchExpenses(); // reload with updated data
+    }
+  };
 
   const expensesForDate = expenses.filter((exp) => exp.date === selectedDate);
   const totalForDate = expensesForDate.reduce(
@@ -117,8 +199,12 @@ const addExpense = () => {
         </div>
 
         <div className="flex justify-end mt-3">
-          <Button className="font-normal cursor-pointer" onClick={addExpense}>
-            + Add Expense
+          <Button
+            className="font-normal cursor-pointer"
+            onClick={addExpense}
+            disabled={isLoading} // ⬅️ button disabled when loading
+          >
+            {isLoading ? "Saving..." : "+ Add Expense"}
           </Button>
         </div>
       </div>
