@@ -144,6 +144,48 @@ export default function Food() {
 
   // stores which expense is selected for deletion
 
+  // States for Edit functionality
+  const [editAlertOpen, setEditAlertOpen] = useState(false);
+  const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
+  const [editAmount, setEditAmount] = useState<string>("");
+  const [editNote, setEditNote] = useState<string>("");
+
+  // Function to open edit dialog and pre-fill values
+  const openEditDialog = (exp: Expense) => {
+    setSelectedExpense(exp);
+    setEditAmount(exp.amount.toString());
+    setEditNote(exp.note);
+    setEditAlertOpen(true);
+  };
+
+  // Function to save edited expense
+  const saveEditedExpense = async () => {
+    if (!selectedExpense) return;
+
+    if (!editAmount || isNaN(Number(editAmount))) {
+      toast.error("Please fill in a valid amount.");
+      return;
+    }
+
+    if (!editNote.trim()) {
+      toast.error("Note cannot be empty.");
+      return;
+    }
+
+    const { error } = await supabase
+      .from("expenses")
+      .update({ amount: Number(editAmount), note: editNote.trim() })
+      .eq("id", selectedExpense.id);
+
+    if (error) toast.error(error.message);
+    else {
+      toast.success("Expense updated successfully!");
+      fetchExpenses(); // refresh list
+      setEditAlertOpen(false); // close dialog
+      setDropdownOpen(null); // close dropdown
+    }
+  };
+
   const expensesForDate = expenses.filter((exp) => exp.date === selectedDate);
   const totalForDate = expensesForDate.reduce(
     (sum, exp) => sum + exp.amount,
@@ -237,9 +279,64 @@ export default function Food() {
                   className="mr-10"
                   onClick={(e) => e.stopPropagation()} // stops clicks inside content from reaching outer components
                 >
-                  <button className="w-full text-left text-sm px-2 py-[5px] cursor-pointer hover:bg-gray-100 rounded-sm">
+                  <button
+                    className="w-full text-left text-sm px-2 py-[5px] cursor-pointer hover:bg-gray-100 rounded-sm"
+                    onClick={() => openEditDialog(exp)}
+                  >
                     Edit
                   </button>
+                  <AlertDialog
+                    open={editAlertOpen}
+                    onOpenChange={setEditAlertOpen}
+                  >
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Edit Expense</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Update the amount and note for this expense.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <div className="flex flex-col gap-2 mt-2">
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                            ₱
+                          </span>
+                          <Input
+                            placeholder="0.00"
+                            value={editAmount}
+                            onChange={(e) => setEditAmount(e.target.value)}
+                            className="pl-7" // padding-left to avoid overlap with peso sign
+                          />
+                        </div>
+
+                        <Input
+                          placeholder="Note"
+                          value={editNote}
+                          onChange={(e) => setEditNote(e.target.value)}
+                        />
+                      </div>
+                      <AlertDialogFooter>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            onClick={() => {
+                              setEditAlertOpen(false);
+                              setDropdownOpen(null);
+                            }}
+                            className="w-1/2 cursor-pointer"
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            className="w-1/2 cursor-pointer"
+                            onClick={saveEditedExpense}
+                          >
+                            Save
+                          </Button>
+                        </div>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
 
                   {/* Delete with AlertDialog */}
                   <AlertDialog open={alertOpen} onOpenChange={setAlertOpen}>
