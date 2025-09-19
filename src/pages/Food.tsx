@@ -14,7 +14,6 @@ import { EllipsisVertical, CalendarFold } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
@@ -139,10 +138,10 @@ export default function Food() {
 
   const [alertOpen, setAlertOpen] = useState(false);
   // tracks if the alert dialog is open
-
   const [selectedExpenseId, setSelectedExpenseId] = useState<number | null>(
     null
   );
+
   // stores which expense is selected for deletion
 
   const expensesForDate = expenses.filter((exp) => exp.date === selectedDate);
@@ -247,7 +246,10 @@ export default function Food() {
                     <AlertDialogTrigger asChild>
                       <button
                         className="w-full text-left text-red-700 hover:text-red-700! text-sm px-2 py-[5px] cursor-pointer hover:bg-gray-100 rounded-sm"
-                        onClick={() => setDropdownOpen(exp.id ?? null)}
+                        onClick={() => {
+                          setSelectedExpenseId(exp.id ?? null); // select this expense
+                          setAlertOpen(true); // open the confirm deletion dialog
+                        }}
                       >
                         Delete
                       </button>
@@ -265,7 +267,10 @@ export default function Food() {
                         <div className="flex gap-2">
                           <Button
                             variant="outline"
-                            onClick={() => setAlertOpen(false)}
+                            onClick={() => {
+                              setAlertOpen(false);
+                              setDropdownOpen(null);
+                            }}
                             className="w-1/2 cursor-pointer"
                           >
                             Cancel
@@ -273,13 +278,14 @@ export default function Food() {
                           <Button
                             className="w-1/2 bg-red-600 hover:bg-red-700 cursor-pointer"
                             onClick={async () => {
-                              if (selectedExpenseId)
-                                await deleteExpense(selectedExpenseId); // ⬅️ NEW: delete selected expense
-                              setAlertOpen(false); // ⬅️ NEW: close alert dialog
-                              setDropdownOpen(null); // ⬅️ NEW: close dropdown menu
+                              if (selectedExpenseId) {
+                                await deleteExpense(selectedExpenseId);
+                              }
+                              setAlertOpen(false); // close dialog
+                              setDropdownOpen(null); // close dropdown
                             }}
                           >
-                            Delete
+                            Confirm
                           </Button>
                         </div>
                       </AlertDialogFooter>
