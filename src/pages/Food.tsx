@@ -215,14 +215,14 @@ export default function Food() {
                 </DropdownMenuTrigger>
 
                 <DropdownMenuContent className="mr-10">
-                  <DropdownMenuItem className="cursor-pointer">
+                  <button className="w-full text-left text-sm px-2 py-[5px] cursor-pointer hover:bg-gray-100 rounded-sm">
                     Edit
-                  </DropdownMenuItem>
+                  </button>
 
                   {/* Delete with AlertDialog */}
                   <AlertDialog open={open} onOpenChange={setOpen}>
                     <AlertDialogTrigger asChild>
-                      <button className="w-full text-left text-red-700 hover:text-red-700! px-3 py-1">
+                      <button className="w-full text-left text-red-700 hover:text-red-700! text-sm px-2 py-[5px] cursor-pointer hover:bg-gray-100 rounded-sm">
                         Delete
                       </button>
                     </AlertDialogTrigger>
@@ -231,26 +231,29 @@ export default function Food() {
                       <AlertDialogHeader>
                         <AlertDialogTitle>Confirm Deletion</AlertDialogTitle>
                         <AlertDialogDescription>
-                          Are you sure you want to delete this expense? This
-                          action cannot be undone.
+                          Are you sure you want to delete this expense? <br />{" "}
+                          This action cannot be undone.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <Button
-                          variant="outline"
-                          onClick={() => setOpen(false)}
-                        >
-                          Cancel
-                        </Button>
-                        <Button
-                          className="bg-red-600 hover:bg-red-700"
-                          onClick={async () => {
-                            await deleteExpense(exp.id); // your existing function
-                            setOpen(false); // <-- manually close dialog
-                          }}
-                        >
-                          Delete
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            onClick={() => setOpen(false)}
+                            className="w-1/2 cursor-pointer"
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            className="w-1/2 bg-red-600 hover:bg-red-700 cursor-pointer"
+                            onClick={async () => {
+                              await deleteExpense(exp.id); // your existing function
+                              setOpen(false); // <-- manually close dialog
+                            }}
+                          >
+                            Delete
+                          </Button>
+                        </div>
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
