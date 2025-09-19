@@ -123,25 +123,6 @@ export default function Food() {
     }
   };
 
-  // ⬅️ edit expense: asks user with prompt(), updates the row in Supabase
-  const editExpense = async (exp: Expense) => {
-    const newNote = prompt("Edit note", exp.note);
-    if (newNote === null) return;
-    const newAmountStr = prompt("Edit amount", String(exp.amount));
-    if (newAmountStr === null) return;
-
-    const { error } = await supabase
-      .from("expenses")
-      .update({ note: newNote.trim(), amount: Number(newAmountStr) })
-      .eq("id", exp.id);
-
-    if (error) toast.error(error.message);
-    else {
-      toast.success("Updated");
-      fetchExpenses(); // reload with updated data
-    }
-  };
-
   const expensesForDate = expenses.filter((exp) => exp.date === selectedDate);
   const totalForDate = expensesForDate.reduce(
     (sum, exp) => sum + exp.amount,
@@ -228,7 +209,10 @@ export default function Food() {
                   <DropdownMenuItem className="cursor-pointer">
                     Edit
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="cursor-pointer text-red-700 hover:text-red-700!">
+                  <DropdownMenuItem
+                    className="cursor-pointer text-red-700 hover:text-red-700!"
+                    onClick={() => deleteExpense(exp.id)} // ⬅️ call deleteExpense with the current expense id
+                  >
                     Delete
                   </DropdownMenuItem>
                 </DropdownMenuContent>
