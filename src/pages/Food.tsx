@@ -53,9 +53,6 @@ export default function Food() {
 
   // ⬅️ fetch expenses from Supabase for the selected date
   const fetchExpenses = useCallback(async () => {
-    if (!selectedDate) return;
-    setIsLoading(true);
-
     const { data, error } = await supabase
       .from("expenses")
       .select("*")
@@ -199,7 +196,7 @@ export default function Food() {
           Date
           <Popover open={open} onOpenChange={setOpen}>
             {/* use asChild so we can apply custom classes */}
-            <PopoverTrigger asChild>
+            <PopoverTrigger asChild className="cursor-pointer">
               <button className="w-35 flex justify-between items-center py-1 px-5 border border-gray-200 rounded-lg text-gray-500 text-sm">
                 {date ? date.toLocaleDateString() : "Pick a date"}
                 <CalendarFold width={15} />
