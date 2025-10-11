@@ -14,7 +14,7 @@ import { Accounts } from "../components/Accounts";
 
 // 🟡 These imports are not yet used but ready for future use
 import { AddTransaction } from "../components/AddTransaction";
-// import { ManageCategories } from "./components/ManageCategories";
+import { ManageCategories } from "../components/ManageCategories";
 // import { ManageAccounts } from "./components/ManageAccounts";
 
 export default function App() {
@@ -26,7 +26,7 @@ export default function App() {
 
   // These will be used later
   const [isAddTransactionOpen, setIsAddTransactionOpen] = useState(false);
-  // const [isManageCategoriesOpen, setIsManageCategoriesOpen] = useState(false);
+  const [isManageCategoriesOpen, setIsManageCategoriesOpen] = useState(false);
   // const [isManageAccountsOpen, setIsManageAccountsOpen] = useState(false);
 
   const updateAccountBalance = (accountId?: string, amount?: number) => {
@@ -65,13 +65,24 @@ export default function App() {
     setIsAddTransactionOpen(false);
   };
 
-  // const handleAddCategory = (category: Omit<Category, "id">) => {
-  //   const newCategory: Category = {
-  //     ...category,
-  //     id: Date.now().toString(),
-  //   };
-  //   setCategories([...categories, newCategory]);
-  // };
+  const handleAddCategory = (category: Omit<Category, "id">) => {
+    const newCategory: Category = {
+      ...category,
+      id: Date.now().toString(),
+    };
+    setCategories([...categories, newCategory]);
+  };
+
+  const handleUpdateCategory = (id: string, category: Omit<Category, "id">) => {
+  setCategories((prev) =>
+    prev.map((cat) => (cat.id === id ? { ...category, id } : cat))
+  );
+};
+
+const handleDeleteCategory = (id: string) => {
+  setCategories((prev) => prev.filter((cat) => cat.id !== id));
+};
+
 
   // const handleAddAccount = (account: Omit<Account, "id">) => {
   //   const newAccount: Account = {
@@ -99,7 +110,7 @@ export default function App() {
             categories={categories}
             accounts={accounts}
             onAddTransaction={() => setIsAddTransactionOpen(true)}
-            onManageCategories={() => console.log("Manage categories clicked")}
+            onManageCategories={() => setIsManageCategoriesOpen(true)}
           />
         )}
 
@@ -125,7 +136,7 @@ export default function App() {
         accounts={accounts}
       />
 
-      {/* <ManageCategories
+      <ManageCategories
         open={isManageCategoriesOpen}
         onClose={() => setIsManageCategoriesOpen(false)}
         categories={categories}
@@ -134,7 +145,7 @@ export default function App() {
         onDelete={handleDeleteCategory}
       />
 
-      <ManageAccounts
+      {/* <ManageAccounts
         open={isManageAccountsOpen}
         onClose={() => setIsManageAccountsOpen(false)}
         accounts={accounts}
